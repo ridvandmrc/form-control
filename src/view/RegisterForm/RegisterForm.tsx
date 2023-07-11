@@ -5,15 +5,18 @@ import { Input } from "../../components";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 export const InputGridItem: FC<
-  { label: string } & Omit<TextFieldProps, "label">
-> = ({ label, ...props }) => {
+  { label: string; name: string; formHookApi: ReturnType<typeof useForm<any>> } & Omit<TextFieldProps, "label" | "name">
+> = ({ label, formHookApi, name, ...props }) => {
+  const { register, formState: { errors } } = formHookApi
   return (
     <>
       <Grid alignSelf="center" item xs={2} sm={2} md={2} marginTop={4}>
         <Typography>{label}</Typography>
       </Grid>
       <Grid item md={4} xs={4} sm={4} marginTop={4}>
-        <Input fullWidth label={label} {...props} />
+        <Input fullWidth label={label}
+          inputProps={{ ...register(name, { required: true }) }} {...props} />
+        {errors[name] && 'error'}
       </Grid>
     </>
   );
@@ -26,13 +29,15 @@ interface IRegisterProps {
 }
 
 export const RegisterForm = () => {
-  const { register, handleSubmit } = useForm<IRegisterProps>({
+  const formApi = useForm<IRegisterProps>({
     values: { email: "", name: "", password: "" },
+    mode: 'onChange'
   });
 
   const onSubmit: SubmitHandler<IRegisterProps> = (data) => {
     console.log(data);
   };
+
 
   return (
     <Stack
@@ -58,25 +63,22 @@ export const RegisterForm = () => {
         <Typography color="#38508f" variant="h4" alignSelf="center">
           Register Form
         </Typography>
-        <form
-          onSubmit={(e) => {
-            console.log(e);
-            e.preventDefault();
-            void handleSubmit(onSubmit)(e);
-          }}
-        >
+        <form onSubmit={(e) => void formApi.handleSubmit(onSubmit)(e)}>
           <Grid container columns={6}>
             <InputGridItem
               label="Name"
-              {...register("name", { required: true })}
+              name="name"
+              formHookApi={formApi}
             />
             <InputGridItem
               label="E-mail"
-              {...register("email", { required: true })}
+              name="email"
+              formHookApi={formApi}
             />
             <InputGridItem
               label="Password"
-              {...register("password", { required: true })}
+              name="password"
+              formHookApi={formApi}
             />
             <Grid
               item
@@ -104,6 +106,7 @@ export const RegisterForm = () => {
                 disableElevation
                 color="success"
                 variant="contained"
+                disabled={!formApi.formState.isValid}
               >
                 Register
               </Button>
@@ -111,6 +114,6 @@ export const RegisterForm = () => {
           </Grid>
         </form>
       </Stack>
-    </Stack>
+    </Stack >
   );
 };
