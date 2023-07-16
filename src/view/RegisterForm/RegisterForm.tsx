@@ -5,18 +5,27 @@ import { Input } from "../../components";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 export const InputGridItem: FC<
-  { label: string; name: string; formHookApi: ReturnType<typeof useForm<any>> } & Omit<TextFieldProps, "label" | "name">
+  {
+    label: string;
+    name: string;
+    formHookApi: ReturnType<typeof useForm<any>>;
+  } & Omit<TextFieldProps, "label" | "name">
 > = ({ label, formHookApi, name, ...props }) => {
-  const { register, formState: { errors } } = formHookApi
+  const { register } = formHookApi;
   return (
     <>
       <Grid alignSelf="center" item xs={2} sm={2} md={2} marginTop={4}>
         <Typography>{label}</Typography>
       </Grid>
       <Grid item md={4} xs={4} sm={4} marginTop={4}>
-        <Input fullWidth label={label}
-          inputProps={{ ...register(name, { required: true }) }} {...props} />
-        {errors[name] && 'error'}
+        <Input
+          formHookApi={formHookApi}
+          fullWidth
+          label={label}
+          name={name}
+          inputProps={{ ...register(name, { required: true }) }}
+          {...props}
+        />
       </Grid>
     </>
   );
@@ -31,13 +40,12 @@ interface IRegisterProps {
 export const RegisterForm = () => {
   const formApi = useForm<IRegisterProps>({
     values: { email: "", name: "", password: "" },
-    mode: 'onChange'
+    mode: "onChange",
   });
 
   const onSubmit: SubmitHandler<IRegisterProps> = (data) => {
     console.log(data);
   };
-
 
   return (
     <Stack
@@ -65,16 +73,8 @@ export const RegisterForm = () => {
         </Typography>
         <form onSubmit={(e) => void formApi.handleSubmit(onSubmit)(e)}>
           <Grid container columns={6}>
-            <InputGridItem
-              label="Name"
-              name="name"
-              formHookApi={formApi}
-            />
-            <InputGridItem
-              label="E-mail"
-              name="email"
-              formHookApi={formApi}
-            />
+            <InputGridItem label="Name" name="name" formHookApi={formApi} />
+            <InputGridItem label="E-mail" name="email" formHookApi={formApi} />
             <InputGridItem
               label="Password"
               name="password"
@@ -114,6 +114,6 @@ export const RegisterForm = () => {
           </Grid>
         </form>
       </Stack>
-    </Stack >
+    </Stack>
   );
 };
