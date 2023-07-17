@@ -10,7 +10,11 @@ export const Input: FC<
   return (
     <TextField
       error={!!formState.errors[name || ""]}
-      helperText={formState.errors[name || ""] ? "This Field is required" : ""}
+      helperText={
+        formState.errors[name || ""]
+          ? (formState.errors[name || ""]!.message as string) || ""
+          : ""
+      }
       variant="outlined"
       {...props}
     />

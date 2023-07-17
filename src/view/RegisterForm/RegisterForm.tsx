@@ -3,6 +3,8 @@ import { Button, Grid, Stack, TextFieldProps, Typography } from "@mui/material";
 import { Input } from "../../components";
 
 import { SubmitHandler, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 export const InputGridItem: FC<
   {
@@ -41,6 +43,21 @@ export const RegisterForm = () => {
   const formApi = useForm<IRegisterProps>({
     values: { email: "", name: "", password: "" },
     mode: "onChange",
+    resolver: yupResolver<Partial<IRegisterProps>>(
+      yup.object<IRegisterProps>({
+        name: yup
+          .string()
+          .trim()
+          .required("this field is required")
+          .min(3, "It should be 2 chars min"),
+        email: yup
+          .string()
+          .trim()
+          .email("it should be correct e-mail format")
+          .required("it should be filled"),
+        password: yup.string().trim().required("this field is required"),
+      })
+    ),
   });
 
   const onSubmit: SubmitHandler<IRegisterProps> = (data) => {
